@@ -17,15 +17,21 @@ enum photos: CGFloat {
 
 class GameScene: SKScene {
     
+    let gravity: CGFloat = -1500.0
+    let upVelocity: CGFloat = 400.0
+    var velocity = CGPoint.zero
     let nodeOfWorld = SKNode()
     var starOfGame: CGFloat = 0
     var heightOfGame: CGFloat = 0
-    
+    let roleOfGame = SKSpriteNode(imageNamed: "Bird0")
+     var lastedUpdateTime: NSTimeInterval = 0
+    var dt: NSTimeInterval = 0
     
     override func didMoveToView(view: SKView) {
         addChild(nodeOfWorld)
         setBackground()
         setFrontground()
+        setRole()
     }
     
     // MARK: 设置的相关方法
@@ -50,13 +56,47 @@ class GameScene: SKScene {
         nodeOfWorld.addChild(frontground)
     }
     
+    func setRole() {
+        roleOfGame.position = CGPoint(x: size.width * 0.2, y: heightOfGame * 0.4 + starOfGame)
+        roleOfGame.zPosition = photos.roleOfGame.rawValue
+        nodeOfWorld.addChild(roleOfGame)
+    }
     
-    
+    //MARK: 主角上升
+    func fly() {
+        velocity = CGPoint(x: 0, y: upVelocity)
+    }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        fly()
     }
-   
+    
+    //MARK: 更新
     override func update(currentTime: CFTimeInterval) {
-
+        if lastedUpdateTime > 0 {
+            dt = currentTime - lastedUpdateTime
+        } else {
+            dt = 0
+        }
+        lastedUpdateTime = currentTime
+        
+        updateRole()
+    }
+    
+    func updateRole() {
+        let acceleration = CGPoint(x: 0, y: gravity)
+        velocity = velocity + acceleration * CGFloat(dt)
+        roleOfGame.position = roleOfGame.position + velocity * CGFloat(dt)
+        
+        if roleOfGame.position.y - roleOfGame.size.height / 2 < starOfGame {
+            roleOfGame.position = CGPoint(x: roleOfGame.position.x, y: starOfGame + roleOfGame.size.height / 2)
+        }
     }
 }
+
+
+
+
+
+
+
