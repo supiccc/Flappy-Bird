@@ -24,8 +24,17 @@ class GameScene: SKScene {
     var starOfGame: CGFloat = 0
     var heightOfGame: CGFloat = 0
     let roleOfGame = SKSpriteNode(imageNamed: "Bird0")
-     var lastedUpdateTime: NSTimeInterval = 0
+    var lastedUpdateTime: NSTimeInterval = 0
     var dt: NSTimeInterval = 0
+    
+    // Voice
+    let voiceOfDing = SKAction.playSoundFileNamed("ding.wav", waitForCompletion: false)
+    let voiceOfFlappy = SKAction.playSoundFileNamed("flapping.wav", waitForCompletion: false)
+    let voiceOfWhack = SKAction.playSoundFileNamed("whack.wav", waitForCompletion: false)
+    let voiceOfHit = SKAction.playSoundFileNamed("hitground.wav", waitForCompletion: false)
+    let voiceOfFall = SKAction.playSoundFileNamed("falling.wav", waitForCompletion: false)
+    let voiceOfPop = SKAction.playSoundFileNamed("pop.wav", waitForCompletion: false)
+    let voiceOfCoin = SKAction.playSoundFileNamed("coin.wav", waitForCompletion: false)
     
     override func didMoveToView(view: SKView) {
         addChild(nodeOfWorld)
@@ -68,6 +77,8 @@ class GameScene: SKScene {
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        runAction(voiceOfFlappy)
+        
         fly()
     }
     
