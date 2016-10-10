@@ -17,13 +17,18 @@ enum photos: CGFloat {
 
 class GameScene: SKScene {
     
+    let numOfFront = 2
+    let velocityOfFront: CGFloat = -150.0
+    
     let gravity: CGFloat = -1500.0
     let upVelocity: CGFloat = 400.0
     var velocity = CGPoint.zero
+    
     let nodeOfWorld = SKNode()
     var starOfGame: CGFloat = 0
     var heightOfGame: CGFloat = 0
     let roleOfGame = SKSpriteNode(imageNamed: "Bird0")
+    
     var lastedUpdateTime: NSTimeInterval = 0
     var dt: NSTimeInterval = 0
     
@@ -31,7 +36,7 @@ class GameScene: SKScene {
     let voiceOfDing = SKAction.playSoundFileNamed("ding.wav", waitForCompletion: false)
     let voiceOfFlappy = SKAction.playSoundFileNamed("flapping.wav", waitForCompletion: false)
     let voiceOfWhack = SKAction.playSoundFileNamed("whack.wav", waitForCompletion: false)
-    let voiceOfHit = SKAction.playSoundFileNamed("hitground.wav", waitForCompletion: false)
+    let voiceOfHit = SKAction.playSoundFileNamed("hitGround.wav", waitForCompletion: false)
     let voiceOfFall = SKAction.playSoundFileNamed("falling.wav", waitForCompletion: false)
     let voiceOfPop = SKAction.playSoundFileNamed("pop.wav", waitForCompletion: false)
     let voiceOfCoin = SKAction.playSoundFileNamed("coin.wav", waitForCompletion: false)
@@ -58,11 +63,14 @@ class GameScene: SKScene {
     }
     
     func setFrontground() {
-        let frontground = SKSpriteNode(imageNamed: "Ground")
-        frontground.anchorPoint = CGPoint(x: 0, y: 1.0)
-        frontground.position = CGPoint(x: 0, y: starOfGame)
-        frontground.zPosition = photos.frontground.rawValue
-        nodeOfWorld.addChild(frontground)
+        for i in 0 ..< numOfFront {
+            let frontground = SKSpriteNode(imageNamed: "Ground")
+            frontground.anchorPoint = CGPoint(x: 0, y: 1.0)
+            frontground.position = CGPoint(x: CGFloat(i) * frontground.size.width, y: starOfGame)
+            frontground.zPosition = photos.frontground.rawValue
+            frontground.name = "frontground"
+            nodeOfWorld.addChild(frontground)
+        }
     }
     
     func setRole() {
@@ -92,6 +100,8 @@ class GameScene: SKScene {
         lastedUpdateTime = currentTime
         
         updateRole()
+        
+        updateFront()
     }
     
     func updateRole() {
@@ -102,6 +112,19 @@ class GameScene: SKScene {
         if roleOfGame.position.y - roleOfGame.size.height / 2 < starOfGame {
             roleOfGame.position = CGPoint(x: roleOfGame.position.x, y: starOfGame + roleOfGame.size.height / 2)
         }
+    }
+    
+    func updateFront() {
+        nodeOfWorld.enumerateChildNodesWithName("frontground", usingBlock: { nodeOfMatch, _ in
+            if let frontground = nodeOfMatch as? SKSpriteNode {
+                let velocityOfGround = CGPoint(x: self.velocityOfFront, y: 0)
+                frontground.position += velocityOfGround * CGFloat(self.dt)
+                
+                if frontground.position.x < -frontground.size.width {
+                    frontground.position += CGPoint(x: frontground.size.width * CGFloat(self.numOfFront), y: 0)
+                }
+            }
+        })
     }
 }
 
