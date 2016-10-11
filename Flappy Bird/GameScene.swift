@@ -10,6 +10,7 @@ import SpriteKit
 
 enum photos: CGFloat {
     case background
+    case barrier
     case frontground
     case roleOfGame
 }
@@ -32,6 +33,9 @@ class GameScene: SKScene {
     var lastedUpdateTime: NSTimeInterval = 0
     var dt: NSTimeInterval = 0
     
+    let firstSetBarrierTime: NSTimeInterval = 1.75
+    let resetBarrierTime: NSTimeInterval = 1.5
+    
     // Voice
     let voiceOfDing = SKAction.playSoundFileNamed("ding.wav", waitForCompletion: false)
     let voiceOfFlappy = SKAction.playSoundFileNamed("flapping.wav", waitForCompletion: false)
@@ -46,7 +50,11 @@ class GameScene: SKScene {
         setBackground()
         setFrontground()
         setRole()
+        boundlessResetBarrier()
     }
+    
+    
+    
     
     // MARK: 设置的相关方法
     
@@ -79,7 +87,50 @@ class GameScene: SKScene {
         nodeOfWorld.addChild(roleOfGame)
     }
     
-    //MARK: 主角上升
+    
+    
+    
+    //MARK: 游戏流程
+    
+    func creatBarrier(nameOfImage: String) -> SKSpriteNode {
+        let barrier = SKSpriteNode(imageNamed: nameOfImage)
+        barrier.zPosition = photos.barrier.rawValue
+        return barrier
+    }
+    
+    func setBarrier() {
+        let baseBarrier = creatBarrier("CactusBottom")
+        let starOfX = size.width + baseBarrier.size.width/2
+        let minOfY = (starOfGame - baseBarrier.size.height/2) + heightOfGame * 0.1
+        let maxOfY = (starOfGame - baseBarrier.size.height/2) + heightOfGame * 0.6
+        baseBarrier.position = CGPointMake(starOfX, CGFloat.random(min: minOfY, max: maxOfY))
+        nodeOfWorld.addChild(baseBarrier)
+        
+        let topBarrier = creatBarrier("CactusTop")
+        topBarrier.zRotation = CGFloat(180).degreesToRadians()
+        topBarrier.position = CGPoint(x: starOfX, y: baseBarrier.position.y + baseBarrier.size.height / 2 + topBarrier.size.height / 2 + roleOfGame.size.height * 3.5)
+        nodeOfWorld.addChild(topBarrier)
+        
+        let moveDistanceOfX = -(size.width + baseBarrier.size.width)
+        let moveTimeOfX = moveDistanceOfX / velocityOfFront
+        let moveAction = SKAction.sequence([SKAction.moveByX(moveDistanceOfX, y: 0, duration: NSTimeInterval(moveTimeOfX)), SKAction.removeFromParent()
+            ])
+        
+        baseBarrier.runAction(moveAction)
+        topBarrier.runAction(moveAction)
+    }
+    
+    
+    func boundlessResetBarrier() {
+        let firstSetTime = SKAction.waitForDuration(firstSetBarrierTime)
+        let resetBarrier = SKAction.runBlock(setBarrier)
+        let resetTime = SKAction.waitForDuration(resetBarrierTime)
+        let resetAction = SKAction.sequence([resetBarrier, resetTime])
+        let boundlessReset = SKAction.repeatActionForever(resetAction)
+        let allAction = SKAction.sequence([firstSetTime, boundlessReset])
+        runAction(allAction)
+    }
+    
     func fly() {
         velocity = CGPoint(x: 0, y: upVelocity)
     }
@@ -117,8 +168,8 @@ class GameScene: SKScene {
     func updateFront() {
         nodeOfWorld.enumerateChildNodesWithName("frontground", usingBlock: { nodeOfMatch, _ in
             if let frontground = nodeOfMatch as? SKSpriteNode {
-                let velocityOfGround = CGPoint(x: self.velocityOfFront, y: 0)
-                frontground.position += velocityOfGround * CGFloat(self.dt)
+                let velocityOfFront = CGPoint(x: self.velocityOfFront, y: 0)
+                frontground.position += velocityOfFront * CGFloat(self.dt)
                 
                 if frontground.position.x < -frontground.size.width {
                     frontground.position += CGPoint(x: frontground.size.width * CGFloat(self.numOfFront), y: 0)
