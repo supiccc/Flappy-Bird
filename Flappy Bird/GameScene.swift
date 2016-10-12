@@ -16,6 +16,7 @@ enum photos: CGFloat {
 }
 
 enum statusGame {
+    case gameMenu
     case gameing
     case teachGame
     case game
@@ -241,8 +242,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         runAction(voiceOfFlappy)
         
-        fly()
-    }
+        switch nowGameStatus {
+        case .gameMenu:
+            break
+        case .gameing:
+            fly()
+            break
+        case .teachGame:
+            break
+        case .goDown:
+            break
+        case .printMark:
+            break
+        case .endGame:
+            break
+        default:
+            break
+        }
+    } 
     
     //MARK: 更新
     override func update(currentTime: CFTimeInterval) {
@@ -253,11 +270,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         lastedUpdateTime = currentTime
         
-        updateRole()
-        
-        updateFront()
-        
-        testContactBarrier()
+        switch nowGameStatus {
+        case .gameMenu:
+            break
+        case .gameing:
+            updateFront()
+            updateRole()
+            testContactBarrier()
+            testContactFront()
+            break
+        case .teachGame:
+            break
+        case .goDown:
+            updateRole()
+            testContactFront()
+            break
+        case .printMark:
+            break
+        case .endGame:
+            break
+        default:
+            break
+        }
     }
     
     func updateRole() {
@@ -294,10 +328,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if contactFront {
             contactFront = false
             velocity = CGPoint.zero
-            roleOfGame.zPosition = CGFloat(-90).degreesToRadians()
+            roleOfGame.zRotation = CGFloat(-90).degreesToRadians()
             roleOfGame.position = CGPoint(x: roleOfGame.position.x, y: starOfGame + roleOfGame.size.width / 2)
             runAction(voiceOfHit)
-//            cutPrintMark()
+            cutPrintMark()
         }
     }
     
@@ -315,11 +349,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         stopReset()
     }
     
-//    func cutPrintMark() {
-//        nowGameStatus = .printMark
-//        roleOfGame.removeAllActions()
-//        stopReset()
-//    }
+    func cutPrintMark() {
+        nowGameStatus = .printMark
+        roleOfGame.removeAllActions()
+        stopReset()
+    }
     
     //MARK: 碰撞引擎
     
