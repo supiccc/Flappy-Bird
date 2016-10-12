@@ -15,15 +15,24 @@ enum photos: CGFloat {
     case roleOfGame
 }
 
+enum statusGame {
+    case gameing
+    case teachGame
+    case game
+    case goDown
+    case printMark
+    case endGame
+}
+
 struct physicsTier {
-    static let nothing: UInt32 = 0
+    static let nothing: UInt32 =      0
     static let roleOfGame: UInt32 = 0b1
-    static let barrier: UInt32 = 0b10
-    static let front: UInt32 = 0b100
+    static let barrier: UInt32 =   0b10
+    static let front: UInt32 =    0b100
 }
 
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let numOfFront = 2
     let velocityOfFront: CGFloat = -150.0
@@ -31,6 +40,10 @@ class GameScene: SKScene {
     let gravity: CGFloat = -1500.0
     let upVelocity: CGFloat = 400.0
     var velocity = CGPoint.zero
+    
+    var contactFront = false
+    var contactBarrier = false
+    var nowGameStatus: statusGame = .gameing
     
     let nodeOfWorld = SKNode()
     var starOfGame: CGFloat = 0
@@ -56,6 +69,10 @@ class GameScene: SKScene {
         
         //关闭重力
         physicsWorld.gravity = CGVectorMake(0, 0)
+        
+        //设置碰撞代理
+        physicsWorld.contactDelegate = self
+        
         
         addChild(nodeOfWorld)
         setBackground()
@@ -153,36 +170,12 @@ class GameScene: SKScene {
         
         let path = CGPathCreateMutable()
         
-        CGPathMoveToPoint(path, nil, 6 - offsetX, 311 - offsetY)
-        CGPathAddLineToPoint(path, nil, 23 - offsetX, 311 - offsetY)
-        CGPathAddLineToPoint(path, nil, 26 - offsetX, 312 - offsetY)
-        CGPathAddLineToPoint(path, nil, 34 - offsetX, 312 - offsetY)
-        CGPathAddLineToPoint(path, nil, 41 - offsetX, 310 - offsetY)
-        CGPathAddLineToPoint(path, nil, 48 - offsetX, 309 - offsetY)
-        CGPathAddLineToPoint(path, nil, 51 - offsetX, 293 - offsetY)
-        CGPathAddLineToPoint(path, nil, 50 - offsetX, 278 - offsetY)
-        CGPathAddLineToPoint(path, nil, 48 - offsetX, 255 - offsetY)
-        CGPathAddLineToPoint(path, nil, 50 - offsetX, 232 - offsetY)
-        CGPathAddLineToPoint(path, nil, 49 - offsetX, 222 - offsetY)
-        CGPathAddLineToPoint(path, nil, 46 - offsetX, 203 - offsetY)
-        CGPathAddLineToPoint(path, nil, 48 - offsetX, 186 - offsetY)
-        CGPathAddLineToPoint(path, nil, 47 - offsetX, 156 - offsetY)
-        CGPathAddLineToPoint(path, nil, 43 - offsetX, 132 - offsetY)
-        CGPathAddLineToPoint(path, nil, 43 - offsetX, 132 - offsetY)
-        CGPathAddLineToPoint(path, nil, 43 - offsetX, 63 - offsetY)
-        CGPathAddLineToPoint(path, nil, 43 - offsetX, 48 - offsetY)
-        CGPathAddLineToPoint(path, nil, 45 - offsetX, 28 - offsetY)
-        CGPathAddLineToPoint(path, nil, 46 - offsetX, 11 - offsetY)
-        CGPathAddLineToPoint(path, nil, 46 - offsetX, 2 - offsetY)
-        CGPathAddLineToPoint(path, nil, 47 - offsetX, 0 - offsetY)
-        CGPathAddLineToPoint(path, nil, 34 - offsetX, 0 - offsetY)
-        CGPathAddLineToPoint(path, nil, 30 - offsetX, 0 - offsetY)
-        CGPathAddLineToPoint(path, nil, 22 - offsetX, 2 - offsetY)
-        CGPathAddLineToPoint(path, nil, 15 - offsetX, 1 - offsetY)
-        CGPathAddLineToPoint(path, nil, 12 - offsetX, 1 - offsetY)
-        CGPathAddLineToPoint(path, nil, 7 - offsetX, 1 - offsetY)
-        CGPathAddLineToPoint(path, nil, 4 - offsetX, 1 - offsetY)
-        CGPathAddLineToPoint(path, nil, 2 - offsetX, 38 - offsetY)
+        CGPathMoveToPoint(path, nil, 3 - offsetX, 2 - offsetY)
+        CGPathAddLineToPoint(path, nil, 6 - offsetX, 309 - offsetY)
+        CGPathAddLineToPoint(path, nil, 46 - offsetX, 309 - offsetY)
+        CGPathAddLineToPoint(path, nil, 48 - offsetX, 2 - offsetY)
+        CGPathAddLineToPoint(path, nil, 48 - offsetX, 0 - offsetY)
+        CGPathAddLineToPoint(path, nil, 5 - offsetX, 0 - offsetY)
         
         CGPathCloseSubpath(path)
         
@@ -196,6 +189,7 @@ class GameScene: SKScene {
     
     func setBarrier() {
         let baseBarrier = creatBarrier("CactusBottom")
+        baseBarrier.name = "baseBarrier"
         let starOfX = size.width + baseBarrier.size.width/2
         let minOfY = (starOfGame - baseBarrier.size.height/2) + heightOfGame * 0.1
         let maxOfY = (starOfGame - baseBarrier.size.height/2) + heightOfGame * 0.6
@@ -203,6 +197,7 @@ class GameScene: SKScene {
         nodeOfWorld.addChild(baseBarrier)
         
         let topBarrier = creatBarrier("CactusTop")
+        topBarrier.name = "topBarrier"
         topBarrier.zRotation = CGFloat(180).degreesToRadians()
         topBarrier.position = CGPoint(x: starOfX, y: baseBarrier.position.y + baseBarrier.size.height / 2 + topBarrier.size.height / 2 + roleOfGame.size.height * 3.5)
         nodeOfWorld.addChild(topBarrier)
@@ -224,7 +219,19 @@ class GameScene: SKScene {
         let resetAction = SKAction.sequence([resetBarrier, resetTime])
         let boundlessReset = SKAction.repeatActionForever(resetAction)
         let allAction = SKAction.sequence([firstSetTime, boundlessReset])
-        runAction(allAction)
+        runAction(allAction, withKey: "reset")
+    }
+    
+    func stopReset() {
+        removeActionForKey("reset")
+        
+        nodeOfWorld.enumerateChildNodesWithName("baseBarrier", usingBlock: {
+            nodeMarry, _ in nodeMarry.removeAllActions()
+            })
+        nodeOfWorld.enumerateChildNodesWithName("topBarrier", usingBlock: {
+            nodeMarry, _ in nodeMarry.removeAllActions()
+        })
+        
     }
     
     func fly() {
@@ -249,6 +256,8 @@ class GameScene: SKScene {
         updateRole()
         
         updateFront()
+        
+        testContactBarrier()
     }
     
     func updateRole() {
@@ -272,6 +281,57 @@ class GameScene: SKScene {
                 }
             }
         })
+    }
+    
+    func testContactBarrier() {
+        if contactBarrier {
+            contactBarrier = false
+            cutGodown()
+        }
+    }
+    
+    func testContactFront() {
+        if contactFront {
+            contactFront = false
+            velocity = CGPoint.zero
+            roleOfGame.zPosition = CGFloat(-90).degreesToRadians()
+            roleOfGame.position = CGPoint(x: roleOfGame.position.x, y: starOfGame + roleOfGame.size.width / 2)
+            runAction(voiceOfHit)
+//            cutPrintMark()
+        }
+    }
+    
+    //MARK: 游戏状态
+    
+    func cutGodown() {
+        nowGameStatus = .goDown
+        runAction(SKAction.sequence([
+            voiceOfWhack,
+            SKAction.waitForDuration(0.1),
+            voiceOfFall
+            ]))
+        
+        roleOfGame.removeAllActions()
+        stopReset()
+    }
+    
+//    func cutPrintMark() {
+//        nowGameStatus = .printMark
+//        roleOfGame.removeAllActions()
+//        stopReset()
+//    }
+    
+    //MARK: 碰撞引擎
+    
+    func didBeginContact(contact: SKPhysicsContact) {
+        let beContact = contact.bodyA.categoryBitMask == physicsTier.roleOfGame ? contact.bodyB : contact.bodyA
+        
+        if beContact.categoryBitMask == physicsTier.front {
+            contactFront = true
+        }
+        if beContact.categoryBitMask == physicsTier.barrier {
+            contactBarrier = true
+        }
     }
 }
 
