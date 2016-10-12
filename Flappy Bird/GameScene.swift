@@ -15,6 +15,13 @@ enum photos: CGFloat {
     case roleOfGame
 }
 
+struct physicsTier {
+    static let nothing: UInt32 = 0
+    static let roleOfGame: UInt32 = 0b1
+    static let barrier: UInt32 = 0b10
+    static let front: UInt32 = 0b100
+}
+
 
 class GameScene: SKScene {
     
@@ -46,6 +53,10 @@ class GameScene: SKScene {
     let voiceOfCoin = SKAction.playSoundFileNamed("coin.wav", waitForCompletion: false)
     
     override func didMoveToView(view: SKView) {
+        
+        //关闭重力
+        physicsWorld.gravity = CGVectorMake(0, 0)
+        
         addChild(nodeOfWorld)
         setBackground()
         setFrontground()
@@ -68,6 +79,14 @@ class GameScene: SKScene {
         starOfGame = size.height - background.size.height
         heightOfGame = background.size.height
         
+        let zuoxia = CGPoint(x: 0, y: starOfGame)
+        let youxia = CGPoint(x: size.width, y: starOfGame)
+        
+        self.physicsBody = SKPhysicsBody(edgeFromPoint: zuoxia, toPoint: youxia)
+        self.physicsBody?.categoryBitMask = physicsTier.front
+        self.physicsBody?.collisionBitMask = 0
+        self.physicsBody?.contactTestBitMask = physicsTier.roleOfGame
+        
     }
     
     func setFrontground() {
@@ -84,6 +103,40 @@ class GameScene: SKScene {
     func setRole() {
         roleOfGame.position = CGPoint(x: size.width * 0.2, y: heightOfGame * 0.4 + starOfGame)
         roleOfGame.zPosition = photos.roleOfGame.rawValue
+        
+        let offsetX = roleOfGame.size.width * roleOfGame.anchorPoint.x
+        let offsetY = roleOfGame.size.height * roleOfGame.anchorPoint.y
+        
+        let path = CGPathCreateMutable()
+        
+        CGPathMoveToPoint(path, nil, 1 - offsetX, 15 - offsetY)
+        CGPathAddLineToPoint(path, nil, 8 - offsetX, 18 - offsetY)
+        CGPathAddLineToPoint(path, nil, 11 - offsetX, 21 - offsetY)
+        CGPathAddLineToPoint(path, nil, 18 - offsetX, 23 - offsetY)
+        CGPathAddLineToPoint(path, nil, 20 - offsetX, 28 - offsetY)
+        CGPathAddLineToPoint(path, nil, 26 - offsetX, 29 - offsetY)
+        CGPathAddLineToPoint(path, nil, 34 - offsetX, 29 - offsetY)
+        CGPathAddLineToPoint(path, nil, 38 - offsetX, 25 - offsetY)
+        CGPathAddLineToPoint(path, nil, 38 - offsetX, 20 - offsetY)
+        CGPathAddLineToPoint(path, nil, 38 - offsetX, 12 - offsetY)
+        CGPathAddLineToPoint(path, nil, 38 - offsetX, 7 - offsetY)
+        CGPathAddLineToPoint(path, nil, 35 - offsetX, 4 - offsetY)
+        CGPathAddLineToPoint(path, nil, 33 - offsetX, 2 - offsetY)
+        CGPathAddLineToPoint(path, nil, 29 - offsetX, 2 - offsetY)
+        CGPathAddLineToPoint(path, nil, 23 - offsetX, 3 - offsetY)
+        CGPathAddLineToPoint(path, nil, 22 - offsetX, 1 - offsetY)
+        CGPathAddLineToPoint(path, nil, 20 - offsetX, 0 - offsetY)
+        CGPathAddLineToPoint(path, nil, 17 - offsetX, 0 - offsetY)
+        CGPathAddLineToPoint(path, nil, 5 - offsetX, 1 - offsetY)
+        
+        CGPathCloseSubpath(path)
+        
+        roleOfGame.physicsBody = SKPhysicsBody(polygonFromPath: path)
+        roleOfGame.physicsBody?.categoryBitMask = physicsTier.roleOfGame
+        roleOfGame.physicsBody?.collisionBitMask = 0  //关闭碰撞处理
+        roleOfGame.physicsBody?.contactTestBitMask = physicsTier.front | physicsTier.barrier
+        
+        
         nodeOfWorld.addChild(roleOfGame)
     }
     
@@ -95,6 +148,49 @@ class GameScene: SKScene {
     func creatBarrier(nameOfImage: String) -> SKSpriteNode {
         let barrier = SKSpriteNode(imageNamed: nameOfImage)
         barrier.zPosition = photos.barrier.rawValue
+        let offsetX = barrier.size.width * barrier.anchorPoint.x
+        let offsetY = barrier.size.height * barrier.anchorPoint.y
+        
+        let path = CGPathCreateMutable()
+        
+        CGPathMoveToPoint(path, nil, 6 - offsetX, 311 - offsetY)
+        CGPathAddLineToPoint(path, nil, 23 - offsetX, 311 - offsetY)
+        CGPathAddLineToPoint(path, nil, 26 - offsetX, 312 - offsetY)
+        CGPathAddLineToPoint(path, nil, 34 - offsetX, 312 - offsetY)
+        CGPathAddLineToPoint(path, nil, 41 - offsetX, 310 - offsetY)
+        CGPathAddLineToPoint(path, nil, 48 - offsetX, 309 - offsetY)
+        CGPathAddLineToPoint(path, nil, 51 - offsetX, 293 - offsetY)
+        CGPathAddLineToPoint(path, nil, 50 - offsetX, 278 - offsetY)
+        CGPathAddLineToPoint(path, nil, 48 - offsetX, 255 - offsetY)
+        CGPathAddLineToPoint(path, nil, 50 - offsetX, 232 - offsetY)
+        CGPathAddLineToPoint(path, nil, 49 - offsetX, 222 - offsetY)
+        CGPathAddLineToPoint(path, nil, 46 - offsetX, 203 - offsetY)
+        CGPathAddLineToPoint(path, nil, 48 - offsetX, 186 - offsetY)
+        CGPathAddLineToPoint(path, nil, 47 - offsetX, 156 - offsetY)
+        CGPathAddLineToPoint(path, nil, 43 - offsetX, 132 - offsetY)
+        CGPathAddLineToPoint(path, nil, 43 - offsetX, 132 - offsetY)
+        CGPathAddLineToPoint(path, nil, 43 - offsetX, 63 - offsetY)
+        CGPathAddLineToPoint(path, nil, 43 - offsetX, 48 - offsetY)
+        CGPathAddLineToPoint(path, nil, 45 - offsetX, 28 - offsetY)
+        CGPathAddLineToPoint(path, nil, 46 - offsetX, 11 - offsetY)
+        CGPathAddLineToPoint(path, nil, 46 - offsetX, 2 - offsetY)
+        CGPathAddLineToPoint(path, nil, 47 - offsetX, 0 - offsetY)
+        CGPathAddLineToPoint(path, nil, 34 - offsetX, 0 - offsetY)
+        CGPathAddLineToPoint(path, nil, 30 - offsetX, 0 - offsetY)
+        CGPathAddLineToPoint(path, nil, 22 - offsetX, 2 - offsetY)
+        CGPathAddLineToPoint(path, nil, 15 - offsetX, 1 - offsetY)
+        CGPathAddLineToPoint(path, nil, 12 - offsetX, 1 - offsetY)
+        CGPathAddLineToPoint(path, nil, 7 - offsetX, 1 - offsetY)
+        CGPathAddLineToPoint(path, nil, 4 - offsetX, 1 - offsetY)
+        CGPathAddLineToPoint(path, nil, 2 - offsetX, 38 - offsetY)
+        
+        CGPathCloseSubpath(path)
+        
+        barrier.physicsBody = SKPhysicsBody(polygonFromPath: path)
+        barrier.physicsBody?.categoryBitMask = physicsTier.barrier
+        barrier.physicsBody?.collisionBitMask = 0
+        barrier.physicsBody?.contactTestBitMask = physicsTier.roleOfGame
+        
         return barrier
     }
     
