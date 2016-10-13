@@ -355,6 +355,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         stopReset()
     }
     
+    func cutNewGame() {
+        
+        runAction(voiceOfPop)
+        let newScene = GameScene(size: size)
+        let transition = SKTransition.fadeWithColor(SKColor.blackColor(), duration: 0.5)
+        view?.presentScene(newScene, transition: transition)
+        
+    }
+    
     //MARK: 碰撞引擎
     
     func didBeginContact(contact: SKPhysicsContact) {
