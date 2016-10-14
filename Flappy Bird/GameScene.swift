@@ -13,6 +13,7 @@ enum photos: CGFloat {
     case barrier
     case frontground
     case roleOfGame
+    case UI
 }
 
 enum statusGame {
@@ -41,6 +42,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let gravity: CGFloat = -1500.0
     let upVelocity: CGFloat = 400.0
     var velocity = CGPoint.zero
+    let topDistance: CGFloat = 20.0
+    let nameFont = "AmericanTypeWriter-Bold"
+    var scoreLabel: SKLabelNode!
+    var nowScore = 0
     
     var contactFront = false
     var contactBarrier = false
@@ -79,6 +84,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setBackground()
         setFrontground()
         setRole()
+        setScoreLabel()
         boundlessResetBarrier()
     }
     
@@ -158,6 +164,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         nodeOfWorld.addChild(roleOfGame)
     }
     
+    func setScoreLabel() {
+        scoreLabel = SKLabelNode(fontNamed: nameFont)
+        scoreLabel.fontColor = SKColor(colorLiteralRed: 101.0 / 255.0, green: 71.0 / 255.0, blue: 73.0 / 255.0, alpha: 1.0)
+        scoreLabel.position = CGPoint(x: size.width / 2, y: size.height - topDistance)
+        scoreLabel.verticalAlignmentMode = .Top
+        scoreLabel.text = "0"
+        scoreLabel.zPosition = photos.UI.rawValue
+        nodeOfWorld.addChild(scoreLabel)
+    }
+    
+    func setScoreCard() {
+        if nowScore > maxScore() {
+            setMaxScore(nowScore)
+        }
+        
+        let scoreCard = SKSpriteNode(imageNamed: "ScoreCard")
+        scoreCard.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        scoreCard.zPosition = photos.UI.rawValue
+        nodeOfWorld.addChild(scoreCard)
+    }
     
     
     
@@ -166,6 +192,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func creatBarrier(nameOfImage: String) -> SKSpriteNode {
         let barrier = SKSpriteNode(imageNamed: nameOfImage)
         barrier.zPosition = photos.barrier.rawValue
+        barrier.userData = NSMutableDictionary()
+        
         let offsetX = barrier.size.width * barrier.anchorPoint.x
         let offsetY = barrier.size.height * barrier.anchorPoint.y
         
@@ -253,6 +281,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         case .goDown:
             break
         case .printMark:
+            cutNewGame()
             break
         case .endGame:
             break
@@ -278,6 +307,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             updateRole()
             testContactBarrier()
             testContactFront()
+            updateScore()
             break
         case .teachGame:
             break
@@ -335,6 +365,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    func updateScore() {
+        nodeOfWorld.enumerateChildNodesWithName("topBarrier", usingBlock: {
+            nodeMarry, _ in
+            if let barrier = nodeMarry as? SKSpriteNode {
+                if let passed = barrier.userData?["passed"] as? NSNumber {
+                    if passed.boolValue {
+                        return
+                    }
+                }
+                if self.roleOfGame.position.x > barrier.position.x + barrier.size.width / 2 {
+                    self.nowScore += 1
+                    self.scoreLabel.text = "\(self.nowScore)"
+                    self.runAction(self.voiceOfCoin)
+                    barrier.userData?["passed"] = NSNumber(bool: true)
+                    //userData字典装不进bool值，所以只能将bool封装进NSNumber使用
+                }
+            }
+        })
+    }
+    
     //MARK: 游戏状态
     
     func cutGodown() {
@@ -359,11 +409,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         runAction(voiceOfPop)
         let newScene = GameScene(size: size)
-        let transition = SKTransition.fadeWithColor(SKColor.blackColor(), duration: 0.5)
+        let transition = SKTransition.fadeWithColor(SKColor.whiteColor(), duration: 0.5)
         view?.presentScene(newScene, transition: transition)
         
     }
     
+    
+    //MARK: 分数
+    func maxScore() -> Int {
+        return NSUserDefaults.standardUserDefaults().integerForKey("maxScore")
+    }
+    
+    func setMaxScore(maxScore: Int) {
+        NSUserDefaults.standardUserDefaults().setInteger(maxScore, forKey: "maxScore")
+        NSUserDefaults.standardUserDefaults().synchronize()
+    }
     //MARK: 碰撞引擎
     
     func didBeginContact(contact: SKPhysicsContact) {
