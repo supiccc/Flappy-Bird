@@ -183,7 +183,46 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreCard.position = CGPoint(x: size.width / 2, y: size.height / 2)
         scoreCard.zPosition = photos.UI.rawValue
         nodeOfWorld.addChild(scoreCard)
-    }
+        
+        let nowScoreLabel = SKLabelNode(fontNamed: nameFont)
+        nowScoreLabel.fontColor = SKColor(colorLiteralRed: 101.0 / 255.0, green: 71.0 / 255.0, blue: 73.0 / 255.0, alpha: 1.0)
+        nowScoreLabel.position = CGPoint(x: -scoreCard.size.width / 4, y: -scoreCard.size.height / 3)
+        nowScoreLabel.text = "\(nowScore)"
+        nowScoreLabel.zPosition = photos.UI.rawValue
+        scoreCard.addChild(nowScoreLabel)
+        
+        let maxScoreLabel = SKLabelNode(fontNamed: nameFont)
+        maxScoreLabel.fontColor = SKColor(colorLiteralRed: 101.0 / 255.0, green: 71.0 / 255.0, blue: 73.0 / 255.0, alpha: 1.0)
+        maxScoreLabel.position = CGPoint(x: scoreCard.size.width / 4, y: -scoreCard.size.height / 3)
+        maxScoreLabel.text = "\(maxScore())"
+        maxScoreLabel.zPosition = photos.UI.rawValue
+        scoreCard.addChild(maxScoreLabel)
+        
+        let gameOver = SKSpriteNode(imageNamed: "GameOver")
+        gameOver.position = CGPoint(x: size.width / 2, y: size.height / 2 + scoreCard.size.height / 2 + topDistance + gameOver.size.height / 2)
+        gameOver.zPosition = photos.UI.rawValue
+        nodeOfWorld.addChild(gameOver)
+        
+        let okButton = SKSpriteNode(imageNamed: "Button")
+        okButton.position = CGPoint(x: size.width / 4, y: size.height / 2 - scoreCard.size.height / 2 - topDistance - okButton.size.height / 2)
+        okButton.zPosition = photos.UI.rawValue
+        nodeOfWorld.addChild(okButton)
+        
+        let ok = SKSpriteNode(imageNamed: "OK")
+        ok.position = CGPoint.zero
+        ok.zPosition = photos.UI.rawValue
+        okButton.addChild(ok)
+        
+        let shareButton = SKSpriteNode(imageNamed: "ButtonRight")
+        shareButton.position = CGPoint(x: size.width * 0.75, y: size.height / 2 - scoreCard.size.height / 2 - topDistance - shareButton.size.height / 2)
+        shareButton.zPosition = photos.UI.rawValue
+        nodeOfWorld.addChild(shareButton)
+        
+        let share = SKSpriteNode(imageNamed: "Share")
+        share.position = CGPoint.zero
+        share.zPosition = photos.UI.rawValue
+        shareButton.addChild(share)
+     }
     
     
     
@@ -403,6 +442,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         nowGameStatus = .printMark
         roleOfGame.removeAllActions()
         stopReset()
+        setScoreCard()
     }
     
     func cutNewGame() {
