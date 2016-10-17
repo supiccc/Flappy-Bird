@@ -38,6 +38,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let numOfFront = 2
     let velocityOfFront: CGFloat = -150.0
+    let timeAction = 0.3
     
     let gravity: CGFloat = -1500.0
     let upVelocity: CGFloat = 400.0
@@ -222,6 +223,44 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         share.position = CGPoint.zero
         share.zPosition = photos.UI.rawValue
         shareButton.addChild(share)
+        
+        gameOver.setScale(0)
+        gameOver.alpha = 0
+        let grounpAction = SKAction.group([
+            SKAction.fadeInWithDuration(timeAction),
+            SKAction.scaleTo(1.0, duration: timeAction)
+            ])
+        grounpAction.timingMode = .EaseInEaseOut
+        gameOver.runAction(SKAction.sequence([
+            SKAction.waitForDuration(timeAction),
+            grounpAction
+            ]))
+        
+        scoreCard.position = CGPoint(x: size.width / 2, y: -scoreCard.size.height / 2)
+        let upAction = SKAction.moveTo(CGPoint(x: size.width / 2, y: size.height / 2), duration: timeAction)
+        upAction.timingMode = .EaseInEaseOut
+        scoreCard.runAction(SKAction.sequence([
+            SKAction.waitForDuration(timeAction * 2),
+            upAction
+            ]))
+        
+        okButton.alpha = 0
+        shareButton.alpha = 0
+        
+        let changeAction = SKAction.sequence([
+            SKAction.waitForDuration(timeAction * 3),
+            SKAction.fadeInWithDuration(timeAction)
+            ])
+        okButton.runAction(changeAction)
+        shareButton.runAction(changeAction)
+        
+        let voiceAction = SKAction.sequence([
+            SKAction.waitForDuration(timeAction), voiceOfPop,
+            SKAction.waitForDuration(timeAction), voiceOfPop,
+            SKAction.waitForDuration(timeAction), voiceOfPop
+            ])
+        
+        runAction(voiceAction)
      }
     
     
