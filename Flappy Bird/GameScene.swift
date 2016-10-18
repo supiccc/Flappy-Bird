@@ -36,6 +36,8 @@ struct physicsTier {
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    
+    let urlOfBaidu = "https://www.baidu.com"
     let numOfFront = 2
     let velocityOfFront: CGFloat = -150.0
     let timeAction = 0.3
@@ -82,7 +84,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
         addChild(nodeOfWorld)
-        cutTeach()
+        cutgameMenu()
         
     }
     
@@ -90,6 +92,52 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     // MARK: 设置的相关方法
+    
+    func setGameMenu() {
+        let logo = SKSpriteNode(imageNamed: "Logo")
+        logo.position = CGPoint(x: size.width / 2, y: size.height * 0.8)
+        logo.name = "gameMenu"
+        logo.zPosition = photos.UI.rawValue
+        nodeOfWorld.addChild(logo)
+        
+        let starButton = SKSpriteNode(imageNamed: "Button")
+        starButton.position = CGPoint(x: size.width * 0.25, y: size.height * 0.25)
+        starButton.name = "gameMenu"
+        starButton.zPosition = photos.UI.rawValue
+        nodeOfWorld.addChild(starButton)
+        
+        let palyGame = SKSpriteNode(imageNamed: "Play")
+        palyGame.position = CGPoint.zero
+        starButton.addChild(palyGame)
+        
+        let rateButton = SKSpriteNode(imageNamed: "Button")
+        rateButton.position = CGPoint(x: size.width * 0.75, y: size.height * 0.25)
+        rateButton.zPosition = photos.UI.rawValue
+        rateButton.name = "gameMenu"
+        nodeOfWorld.addChild(rateButton)
+        
+        let rate = SKSpriteNode(imageNamed: "Rate")
+        rate.position = CGPoint.zero
+        rateButton.addChild(rate)
+        
+        let learnButton = SKSpriteNode(imageNamed: "button_learn")
+        learnButton.position = CGPoint(x: size.width * 0.5, y: learnButton.size.height / 2 + topDistance)
+        learnButton.name = "gameMenu"
+        learnButton.zPosition = photos.UI.rawValue
+        nodeOfWorld.addChild(learnButton)
+        
+        let enlargeAction = SKAction.scaleTo(1.02, duration: 0.75)
+        enlargeAction.timingMode = .EaseInEaseOut
+        
+        let reduceAction = SKAction.scaleTo(1.02, duration: 0.75)
+        reduceAction.timingMode = .EaseInEaseOut
+        
+        learnButton.runAction(SKAction.repeatActionForever(SKAction.sequence([
+            enlargeAction, reduceAction
+            ])))
+        
+        
+    }
     
     func setTeach() {
         let teachGame = SKSpriteNode(imageNamed: "Tutorial")
@@ -355,13 +403,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func fly() {
         velocity = CGPoint(x: 0, y: upVelocity)
+        runAction(voiceOfFlappy)
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        runAction(voiceOfFlappy)
+        
+        guard let touch = touches.first else {
+            return
+        }
+        let touchLocation = touch.locationInNode(self)
         
         switch nowGameStatus {
         case .gameMenu:
+            if touchLocation.y < size.height * 0.15 {
+                toLearn()
+            } else if touchLocation.x < size.width / 2 {
+                cutTeach()
+            } else {
+                toRate()
+            }
             break
         case .gameing:
             fly()
@@ -478,11 +538,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //MARK: 游戏状态
     
-    func cutTeach() {
-        nowGameStatus = .teachGame
+    func cutgameMenu() {
+        nowGameStatus = .gameMenu
         setBackground()
         setFrontground()
         setRole()
+        setGameMenu()
+    }
+    
+    func cutTeach() {
+        nowGameStatus = .teachGame
+        nodeOfWorld.enumerateChildNodesWithName("gameMenu") { nodeMarry, _ in nodeMarry.runAction(SKAction.sequence([
+            SKAction.fadeOutWithDuration(0.05),
+            SKAction.removeFromParent()
+            ]))
+        }
         setScoreLabel()
         setTeach()
     }
@@ -553,6 +623,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             contactBarrier = true
         }
     }
+    
+    //MARK: 其他
+    func toLearn() {
+        let URLOfBaidu = NSURL(string: urlOfBaidu)
+        UIApplication.sharedApplication().openURL(URLOfBaidu!)
+    }
+    
+    func toRate() {
+        let URLOfBaidu = NSURL(string: urlOfBaidu)
+        UIApplication.sharedApplication().openURL(URLOfBaidu!)
+    }
+    
 }
 
 
