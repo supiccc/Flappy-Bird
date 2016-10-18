@@ -82,17 +82,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
         addChild(nodeOfWorld)
-        setBackground()
-        setFrontground()
-        setRole()
-        setScoreLabel()
-        boundlessResetBarrier()
+        cutTeach()
+        
     }
     
     
     
     
     // MARK: 设置的相关方法
+    
+    func setTeach() {
+        let teachGame = SKSpriteNode(imageNamed: "Tutorial")
+        teachGame.position = CGPoint(x: size.width * 0.5, y: heightOfGame * 0.4 + starOfGame)
+        teachGame.name = "teachGame"
+        teachGame.zPosition = photos.UI.rawValue
+        nodeOfWorld.addChild(teachGame)
+        
+        let readyGame = SKSpriteNode(imageNamed: "Ready")
+        readyGame.position = CGPoint(x: size.width * 0.5, y: heightOfGame * 0.7 + starOfGame)
+        readyGame.name = "teachGame"//与上面相同
+        readyGame.zPosition = photos.UI.rawValue
+        nodeOfWorld.addChild(readyGame)
+    }
     
     func setBackground() {
         let background = SKSpriteNode(imageNamed: "Background")
@@ -257,7 +268,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let voiceAction = SKAction.sequence([
             SKAction.waitForDuration(timeAction), voiceOfPop,
             SKAction.waitForDuration(timeAction), voiceOfPop,
-            SKAction.waitForDuration(timeAction), voiceOfPop
+            SKAction.waitForDuration(timeAction), voiceOfPop,
+            SKAction.runBlock(cutEnd)
             ])
         
         runAction(voiceAction)
@@ -355,13 +367,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             fly()
             break
         case .teachGame:
+            cutGame()
             break
         case .goDown:
             break
         case .printMark:
-            cutNewGame()
             break
         case .endGame:
+            cutNewGame()
             break
         default:
             break
@@ -465,6 +478,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //MARK: 游戏状态
     
+    func cutTeach() {
+        nowGameStatus = .teachGame
+        setBackground()
+        setFrontground()
+        setRole()
+        setScoreLabel()
+        setTeach()
+    }
+    
+    func cutGame() {
+        nowGameStatus = .gameing
+        
+        nodeOfWorld.enumerateChildNodesWithName("teachGame") { nodeMarry, _ in nodeMarry.runAction(SKAction.sequence([
+            SKAction.fadeOutWithDuration(0.05),
+            SKAction.removeFromParent()
+            ]))
+        }
+        
+        boundlessResetBarrier()
+        fly()
+    }
+    
     func cutGodown() {
         nowGameStatus = .goDown
         runAction(SKAction.sequence([
@@ -493,6 +528,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
+    func cutEnd() {
+        nowGameStatus = .endGame
+    }
     
     //MARK: 分数
     func maxScore() -> Int {
