@@ -13,7 +13,7 @@ enum photos: CGFloat {
     case barrier
     case frontground
     case roleOfGame
-    case UI
+    case ui
 }
 
 enum statusGame {
@@ -59,11 +59,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var heightOfGame: CGFloat = 0
     let roleOfGame = SKSpriteNode(imageNamed: "Bird0")
     
-    var lastedUpdateTime: NSTimeInterval = 0
-    var dt: NSTimeInterval = 0
+    var lastedUpdateTime: TimeInterval = 0
+    var dt: TimeInterval = 0
     
-    let firstSetBarrierTime: NSTimeInterval = 1.75
-    let resetBarrierTime: NSTimeInterval = 1.5
+    let firstSetBarrierTime: TimeInterval = 1.75
+    let resetBarrierTime: TimeInterval = 1.5
     
     // Voice
     let voiceOfDing = SKAction.playSoundFileNamed("ding.wav", waitForCompletion: false)
@@ -74,10 +74,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let voiceOfPop = SKAction.playSoundFileNamed("pop.wav", waitForCompletion: false)
     let voiceOfCoin = SKAction.playSoundFileNamed("coin.wav", waitForCompletion: false)
     
-    override func didMoveToView(view: SKView) {
+    override func didMove(to view: SKView) {
         
         //关闭重力
-        physicsWorld.gravity = CGVectorMake(0, 0)
+        physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         
         //设置碰撞代理
         physicsWorld.contactDelegate = self
@@ -97,13 +97,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let logo = SKSpriteNode(imageNamed: "Logo")
         logo.position = CGPoint(x: size.width / 2, y: size.height * 0.8)
         logo.name = "gameMenu"
-        logo.zPosition = photos.UI.rawValue
+        logo.zPosition = photos.ui.rawValue
         nodeOfWorld.addChild(logo)
         
         let starButton = SKSpriteNode(imageNamed: "Button")
         starButton.position = CGPoint(x: size.width * 0.25, y: size.height * 0.25)
         starButton.name = "gameMenu"
-        starButton.zPosition = photos.UI.rawValue
+        starButton.zPosition = photos.ui.rawValue
         nodeOfWorld.addChild(starButton)
         
         let palyGame = SKSpriteNode(imageNamed: "Play")
@@ -112,7 +112,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let rateButton = SKSpriteNode(imageNamed: "Button")
         rateButton.position = CGPoint(x: size.width * 0.75, y: size.height * 0.25)
-        rateButton.zPosition = photos.UI.rawValue
+        rateButton.zPosition = photos.ui.rawValue
         rateButton.name = "gameMenu"
         nodeOfWorld.addChild(rateButton)
         
@@ -123,16 +123,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let learnButton = SKSpriteNode(imageNamed: "button_learn")
         learnButton.position = CGPoint(x: size.width * 0.5, y: learnButton.size.height / 2 + topDistance)
         learnButton.name = "gameMenu"
-        learnButton.zPosition = photos.UI.rawValue
+        learnButton.zPosition = photos.ui.rawValue
         nodeOfWorld.addChild(learnButton)
         
-        let enlargeAction = SKAction.scaleTo(1.02, duration: 0.75)
-        enlargeAction.timingMode = .EaseInEaseOut
+        let enlargeAction = SKAction.scale(to: 1.02, duration: 0.75)
+        enlargeAction.timingMode = .easeInEaseOut
         
-        let reduceAction = SKAction.scaleTo(1.02, duration: 0.75)
-        reduceAction.timingMode = .EaseInEaseOut
+        let reduceAction = SKAction.scale(to: 1.02, duration: 0.75)
+        reduceAction.timingMode = .easeInEaseOut
         
-        learnButton.runAction(SKAction.repeatActionForever(SKAction.sequence([
+        learnButton.run(SKAction.repeatForever(SKAction.sequence([
             enlargeAction, reduceAction
             ])))
         
@@ -143,13 +143,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let teachGame = SKSpriteNode(imageNamed: "Tutorial")
         teachGame.position = CGPoint(x: size.width * 0.5, y: heightOfGame * 0.4 + starOfGame)
         teachGame.name = "teachGame"
-        teachGame.zPosition = photos.UI.rawValue
+        teachGame.zPosition = photos.ui.rawValue
         nodeOfWorld.addChild(teachGame)
         
         let readyGame = SKSpriteNode(imageNamed: "Ready")
         readyGame.position = CGPoint(x: size.width * 0.5, y: heightOfGame * 0.7 + starOfGame)
         readyGame.name = "teachGame"//与上面相同
-        readyGame.zPosition = photos.UI.rawValue
+        readyGame.zPosition = photos.ui.rawValue
         nodeOfWorld.addChild(readyGame)
     }
     
@@ -166,7 +166,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let zuoxia = CGPoint(x: 0, y: starOfGame)
         let youxia = CGPoint(x: size.width, y: starOfGame)
         
-        self.physicsBody = SKPhysicsBody(edgeFromPoint: zuoxia, toPoint: youxia)
+        self.physicsBody = SKPhysicsBody(edgeFrom: zuoxia, to: youxia)
         self.physicsBody?.categoryBitMask = physicsTier.front
         self.physicsBody?.collisionBitMask = 0
         self.physicsBody?.contactTestBitMask = physicsTier.roleOfGame
@@ -191,31 +191,53 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let offsetX = roleOfGame.size.width * roleOfGame.anchorPoint.x
         let offsetY = roleOfGame.size.height * roleOfGame.anchorPoint.y
         
-        let path = CGPathCreateMutable()
+        let path = CGMutablePath()
         
-        CGPathMoveToPoint(path, nil, 1 - offsetX, 15 - offsetY)
-        CGPathAddLineToPoint(path, nil, 8 - offsetX, 18 - offsetY)
-        CGPathAddLineToPoint(path, nil, 11 - offsetX, 21 - offsetY)
-        CGPathAddLineToPoint(path, nil, 18 - offsetX, 23 - offsetY)
-        CGPathAddLineToPoint(path, nil, 20 - offsetX, 28 - offsetY)
-        CGPathAddLineToPoint(path, nil, 26 - offsetX, 29 - offsetY)
-        CGPathAddLineToPoint(path, nil, 34 - offsetX, 29 - offsetY)
-        CGPathAddLineToPoint(path, nil, 38 - offsetX, 25 - offsetY)
-        CGPathAddLineToPoint(path, nil, 38 - offsetX, 20 - offsetY)
-        CGPathAddLineToPoint(path, nil, 38 - offsetX, 12 - offsetY)
-        CGPathAddLineToPoint(path, nil, 38 - offsetX, 7 - offsetY)
-        CGPathAddLineToPoint(path, nil, 35 - offsetX, 4 - offsetY)
-        CGPathAddLineToPoint(path, nil, 33 - offsetX, 2 - offsetY)
-        CGPathAddLineToPoint(path, nil, 29 - offsetX, 2 - offsetY)
-        CGPathAddLineToPoint(path, nil, 23 - offsetX, 3 - offsetY)
-        CGPathAddLineToPoint(path, nil, 22 - offsetX, 1 - offsetY)
-        CGPathAddLineToPoint(path, nil, 20 - offsetX, 0 - offsetY)
-        CGPathAddLineToPoint(path, nil, 17 - offsetX, 0 - offsetY)
-        CGPathAddLineToPoint(path, nil, 5 - offsetX, 1 - offsetY)
+//        CGPathMoveToPoint(path, nil, 1 - offsetX, 15 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 8 - offsetX, 18 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 11 - offsetX, 21 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 18 - offsetX, 23 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 20 - offsetX, 28 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 26 - offsetX, 29 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 34 - offsetX, 29 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 38 - offsetX, 25 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 38 - offsetX, 20 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 38 - offsetX, 12 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 38 - offsetX, 7 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 35 - offsetX, 4 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 33 - offsetX, 2 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 29 - offsetX, 2 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 23 - offsetX, 3 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 22 - offsetX, 1 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 20 - offsetX, 0 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 17 - offsetX, 0 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 5 - offsetX, 1 - offsetY)
         
-        CGPathCloseSubpath(path)
+        path.move(to: CGPoint(x: 1 - offsetX, y: 15 - offsetY))
+        path.addLine(to: CGPoint(x: 8 - offsetX, y: 18 - offsetY))
+        path.addLine(to: CGPoint(x: 11 - offsetX, y: 21 - offsetY))
+        path.addLine(to: CGPoint(x: 18 - offsetX, y: 23 - offsetY))
+        path.addLine(to: CGPoint(x: 20 - offsetX, y: 28 - offsetY))
+        path.addLine(to: CGPoint(x: 26 - offsetX, y: 29 - offsetY))
+        path.addLine(to: CGPoint(x: 34 - offsetX, y: 29 - offsetY))
+        path.addLine(to: CGPoint(x: 38 - offsetX, y: 25 - offsetY))
+        path.addLine(to: CGPoint(x: 38 - offsetX, y: 20 - offsetY))
+        path.addLine(to: CGPoint(x: 38 - offsetX, y: 12 - offsetY))
+        path.addLine(to: CGPoint(x: 38 - offsetX, y: 7 - offsetY))
+        path.addLine(to: CGPoint(x: 35 - offsetX, y: 4 - offsetY))
+        path.addLine(to: CGPoint(x: 33 - offsetX, y: 2 - offsetY))
+        path.addLine(to: CGPoint(x: 29 - offsetX, y: 2 - offsetY))
+        path.addLine(to: CGPoint(x: 23 - offsetX, y: 3 - offsetY))
+        path.addLine(to: CGPoint(x: 22 - offsetX, y: 1 - offsetY))
+        path.addLine(to: CGPoint(x: 20 - offsetX, y: 0 - offsetY))
+        path.addLine(to: CGPoint(x: 17 - offsetX, y: 0 - offsetY))
+        path.addLine(to: CGPoint(x: 5 - offsetX, y: 1 - offsetY))
         
-        roleOfGame.physicsBody = SKPhysicsBody(polygonFromPath: path)
+        
+        
+        path.closeSubpath()
+        
+        roleOfGame.physicsBody = SKPhysicsBody(polygonFrom: path)
         roleOfGame.physicsBody?.categoryBitMask = physicsTier.roleOfGame
         roleOfGame.physicsBody?.collisionBitMask = 0  //关闭碰撞处理
         roleOfGame.physicsBody?.contactTestBitMask = physicsTier.front | physicsTier.barrier
@@ -228,9 +250,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreLabel = SKLabelNode(fontNamed: nameFont)
         scoreLabel.fontColor = SKColor(colorLiteralRed: 101.0 / 255.0, green: 71.0 / 255.0, blue: 73.0 / 255.0, alpha: 1.0)
         scoreLabel.position = CGPoint(x: size.width / 2, y: size.height - topDistance)
-        scoreLabel.verticalAlignmentMode = .Top
+        scoreLabel.verticalAlignmentMode = .top
         scoreLabel.text = "0"
-        scoreLabel.zPosition = photos.UI.rawValue
+        scoreLabel.zPosition = photos.ui.rawValue
         nodeOfWorld.addChild(scoreLabel)
     }
     
@@ -241,65 +263,65 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let scoreCard = SKSpriteNode(imageNamed: "ScoreCard")
         scoreCard.position = CGPoint(x: size.width / 2, y: size.height / 2)
-        scoreCard.zPosition = photos.UI.rawValue
+        scoreCard.zPosition = photos.ui.rawValue
         nodeOfWorld.addChild(scoreCard)
         
         let nowScoreLabel = SKLabelNode(fontNamed: nameFont)
         nowScoreLabel.fontColor = SKColor(colorLiteralRed: 101.0 / 255.0, green: 71.0 / 255.0, blue: 73.0 / 255.0, alpha: 1.0)
         nowScoreLabel.position = CGPoint(x: -scoreCard.size.width / 4, y: -scoreCard.size.height / 3)
         nowScoreLabel.text = "\(nowScore)"
-        nowScoreLabel.zPosition = photos.UI.rawValue
+        nowScoreLabel.zPosition = photos.ui.rawValue
         scoreCard.addChild(nowScoreLabel)
         
         let maxScoreLabel = SKLabelNode(fontNamed: nameFont)
         maxScoreLabel.fontColor = SKColor(colorLiteralRed: 101.0 / 255.0, green: 71.0 / 255.0, blue: 73.0 / 255.0, alpha: 1.0)
         maxScoreLabel.position = CGPoint(x: scoreCard.size.width / 4, y: -scoreCard.size.height / 3)
         maxScoreLabel.text = "\(maxScore())"
-        maxScoreLabel.zPosition = photos.UI.rawValue
+        maxScoreLabel.zPosition = photos.ui.rawValue
         scoreCard.addChild(maxScoreLabel)
         
         let gameOver = SKSpriteNode(imageNamed: "GameOver")
         gameOver.position = CGPoint(x: size.width / 2, y: size.height / 2 + scoreCard.size.height / 2 + topDistance + gameOver.size.height / 2)
-        gameOver.zPosition = photos.UI.rawValue
+        gameOver.zPosition = photos.ui.rawValue
         nodeOfWorld.addChild(gameOver)
         
         let okButton = SKSpriteNode(imageNamed: "Button")
         okButton.position = CGPoint(x: size.width / 4, y: size.height / 2 - scoreCard.size.height / 2 - topDistance - okButton.size.height / 2)
-        okButton.zPosition = photos.UI.rawValue
+        okButton.zPosition = photos.ui.rawValue
         nodeOfWorld.addChild(okButton)
         
         let ok = SKSpriteNode(imageNamed: "OK")
         ok.position = CGPoint.zero
-        ok.zPosition = photos.UI.rawValue
+        ok.zPosition = photos.ui.rawValue
         okButton.addChild(ok)
         
         let shareButton = SKSpriteNode(imageNamed: "ButtonRight")
         shareButton.position = CGPoint(x: size.width * 0.75, y: size.height / 2 - scoreCard.size.height / 2 - topDistance - shareButton.size.height / 2)
-        shareButton.zPosition = photos.UI.rawValue
+        shareButton.zPosition = photos.ui.rawValue
         nodeOfWorld.addChild(shareButton)
         
         let share = SKSpriteNode(imageNamed: "Share")
         share.position = CGPoint.zero
-        share.zPosition = photos.UI.rawValue
+        share.zPosition = photos.ui.rawValue
         shareButton.addChild(share)
         
         gameOver.setScale(0)
         gameOver.alpha = 0
         let grounpAction = SKAction.group([
-            SKAction.fadeInWithDuration(timeAction),
-            SKAction.scaleTo(1.0, duration: timeAction)
+            SKAction.fadeIn(withDuration: timeAction),
+            SKAction.scale(to: 1.0, duration: timeAction)
             ])
-        grounpAction.timingMode = .EaseInEaseOut
-        gameOver.runAction(SKAction.sequence([
-            SKAction.waitForDuration(timeAction),
+        grounpAction.timingMode = .easeInEaseOut
+        gameOver.run(SKAction.sequence([
+            SKAction.wait(forDuration: timeAction),
             grounpAction
             ]))
         
         scoreCard.position = CGPoint(x: size.width / 2, y: -scoreCard.size.height / 2)
-        let upAction = SKAction.moveTo(CGPoint(x: size.width / 2, y: size.height / 2), duration: timeAction)
-        upAction.timingMode = .EaseInEaseOut
-        scoreCard.runAction(SKAction.sequence([
-            SKAction.waitForDuration(timeAction * 2),
+        let upAction = SKAction.move(to: CGPoint(x: size.width / 2, y: size.height / 2), duration: timeAction)
+        upAction.timingMode = .easeInEaseOut
+        scoreCard.run(SKAction.sequence([
+            SKAction.wait(forDuration: timeAction * 2),
             upAction
             ]))
         
@@ -307,27 +329,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         shareButton.alpha = 0
         
         let changeAction = SKAction.sequence([
-            SKAction.waitForDuration(timeAction * 3),
-            SKAction.fadeInWithDuration(timeAction)
+            SKAction.wait(forDuration: timeAction * 3),
+            SKAction.fadeIn(withDuration: timeAction)
             ])
-        okButton.runAction(changeAction)
-        shareButton.runAction(changeAction)
+        okButton.run(changeAction)
+        shareButton.run(changeAction)
         
         let voiceAction = SKAction.sequence([
-            SKAction.waitForDuration(timeAction), voiceOfPop,
-            SKAction.waitForDuration(timeAction), voiceOfPop,
-            SKAction.waitForDuration(timeAction), voiceOfPop,
-            SKAction.runBlock(cutEnd)
+            SKAction.wait(forDuration: timeAction), voiceOfPop,
+            SKAction.wait(forDuration: timeAction), voiceOfPop,
+            SKAction.wait(forDuration: timeAction), voiceOfPop,
+            SKAction.run(cutEnd)
             ])
         
-        runAction(voiceAction)
+        run(voiceAction)
      }
     
     
     
     //MARK: 游戏流程
     
-    func creatBarrier(nameOfImage: String) -> SKSpriteNode {
+    func creatBarrier(_ nameOfImage: String) -> SKSpriteNode {
         let barrier = SKSpriteNode(imageNamed: nameOfImage)
         barrier.zPosition = photos.barrier.rawValue
         barrier.userData = NSMutableDictionary()
@@ -335,18 +357,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let offsetX = barrier.size.width * barrier.anchorPoint.x
         let offsetY = barrier.size.height * barrier.anchorPoint.y
         
-        let path = CGPathCreateMutable()
+        let path = CGMutablePath()
         
-        CGPathMoveToPoint(path, nil, 3 - offsetX, 2 - offsetY)
-        CGPathAddLineToPoint(path, nil, 6 - offsetX, 309 - offsetY)
-        CGPathAddLineToPoint(path, nil, 46 - offsetX, 309 - offsetY)
-        CGPathAddLineToPoint(path, nil, 48 - offsetX, 2 - offsetY)
-        CGPathAddLineToPoint(path, nil, 48 - offsetX, 0 - offsetY)
-        CGPathAddLineToPoint(path, nil, 5 - offsetX, 0 - offsetY)
+//        CGPathMoveToPoint(path, nil, 3 - offsetX, 2 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 6 - offsetX, 309 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 46 - offsetX, 309 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 48 - offsetX, 2 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 48 - offsetX, 0 - offsetY)
+//        CGPathAddLineToPoint(path, nil, 5 - offsetX, 0 - offsetY)
+        path.move(to: CGPoint(x: 3 - offsetX, y: 2 - offsetY))
+        path.addLine(to: CGPoint(x: 6 - offsetX, y: 309 - offsetY))
+        path.addLine(to: CGPoint(x: 46 - offsetX, y: 309 - offsetY))
+        path.addLine(to: CGPoint(x: 48 - offsetX, y: 2 - offsetY))
+        path.addLine(to: CGPoint(x: 6 - offsetX, y: 0 - offsetY))
+        path.addLine(to: CGPoint(x: 5 - offsetX, y: 0 - offsetY))
         
-        CGPathCloseSubpath(path)
+        path.closeSubpath()
         
-        barrier.physicsBody = SKPhysicsBody(polygonFromPath: path)
+        barrier.physicsBody = SKPhysicsBody(polygonFrom: path)
         barrier.physicsBody?.categoryBitMask = physicsTier.barrier
         barrier.physicsBody?.collisionBitMask = 0
         barrier.physicsBody?.contactTestBitMask = physicsTier.roleOfGame
@@ -360,7 +388,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let starOfX = size.width + baseBarrier.size.width/2
         let minOfY = (starOfGame - baseBarrier.size.height/2) + heightOfGame * 0.1
         let maxOfY = (starOfGame - baseBarrier.size.height/2) + heightOfGame * 0.6
-        baseBarrier.position = CGPointMake(starOfX, CGFloat.random(min: minOfY, max: maxOfY))
+        baseBarrier.position = CGPoint(x: starOfX, y: CGFloat.random(min: minOfY, max: maxOfY))
         nodeOfWorld.addChild(baseBarrier)
         
         let topBarrier = creatBarrier("CactusTop")
@@ -371,31 +399,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let moveDistanceOfX = -(size.width + baseBarrier.size.width)
         let moveTimeOfX = moveDistanceOfX / velocityOfFront
-        let moveAction = SKAction.sequence([SKAction.moveByX(moveDistanceOfX, y: 0, duration: NSTimeInterval(moveTimeOfX)), SKAction.removeFromParent()
+        let moveAction = SKAction.sequence([SKAction.moveBy(x: moveDistanceOfX, y: 0, duration: TimeInterval(moveTimeOfX)), SKAction.removeFromParent()
             ])
         
-        baseBarrier.runAction(moveAction)
-        topBarrier.runAction(moveAction)
+        baseBarrier.run(moveAction)
+        topBarrier.run(moveAction)
     }
     
     
     func boundlessResetBarrier() {
-        let firstSetTime = SKAction.waitForDuration(firstSetBarrierTime)
-        let resetBarrier = SKAction.runBlock(setBarrier)
-        let resetTime = SKAction.waitForDuration(resetBarrierTime)
+        let firstSetTime = SKAction.wait(forDuration: firstSetBarrierTime)
+        let resetBarrier = SKAction.run(setBarrier)
+        let resetTime = SKAction.wait(forDuration: resetBarrierTime)
         let resetAction = SKAction.sequence([resetBarrier, resetTime])
-        let boundlessReset = SKAction.repeatActionForever(resetAction)
+        let boundlessReset = SKAction.repeatForever(resetAction)
         let allAction = SKAction.sequence([firstSetTime, boundlessReset])
-        runAction(allAction, withKey: "reset")
+        run(allAction, withKey: "reset")
     }
     
     func stopReset() {
-        removeActionForKey("reset")
+        removeAction(forKey: "reset")
         
-        nodeOfWorld.enumerateChildNodesWithName("baseBarrier", usingBlock: {
+        nodeOfWorld.enumerateChildNodes(withName: "baseBarrier", using: {
             nodeMarry, _ in nodeMarry.removeAllActions()
             })
-        nodeOfWorld.enumerateChildNodesWithName("topBarrier", usingBlock: {
+        nodeOfWorld.enumerateChildNodes(withName: "topBarrier", using: {
             nodeMarry, _ in nodeMarry.removeAllActions()
         })
         
@@ -403,15 +431,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func fly() {
         velocity = CGPoint(x: 0, y: upVelocity)
-        runAction(voiceOfFlappy)
+        run(voiceOfFlappy)
     }
     
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         guard let touch = touches.first else {
             return
         }
-        let touchLocation = touch.locationInNode(self)
+        let touchLocation = touch.location(in: self)
         
         switch nowGameStatus {
         case .gameMenu:
@@ -442,7 +470,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     } 
     
     //MARK: 更新
-    override func update(currentTime: CFTimeInterval) {
+    override func update(_ currentTime: TimeInterval) {
         if lastedUpdateTime > 0 {
             dt = currentTime - lastedUpdateTime
         } else {
@@ -486,7 +514,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func updateFront() {
-        nodeOfWorld.enumerateChildNodesWithName("frontground", usingBlock: { nodeOfMatch, _ in
+        nodeOfWorld.enumerateChildNodes(withName: "frontground", using: { nodeOfMatch, _ in
             if let frontground = nodeOfMatch as? SKSpriteNode {
                 let velocityOfFront = CGPoint(x: self.velocityOfFront, y: 0)
                 frontground.position += velocityOfFront * CGFloat(self.dt)
@@ -511,13 +539,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             velocity = CGPoint.zero
             roleOfGame.zRotation = CGFloat(-90).degreesToRadians()
             roleOfGame.position = CGPoint(x: roleOfGame.position.x, y: starOfGame + roleOfGame.size.width / 2)
-            runAction(voiceOfHit)
+            run(voiceOfHit)
             cutPrintMark()
         }
     }
     
     func updateScore() {
-        nodeOfWorld.enumerateChildNodesWithName("topBarrier", usingBlock: {
+        nodeOfWorld.enumerateChildNodes(withName: "topBarrier", using: {
             nodeMarry, _ in
             if let barrier = nodeMarry as? SKSpriteNode {
                 if let passed = barrier.userData?["passed"] as? NSNumber {
@@ -528,8 +556,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 if self.roleOfGame.position.x > barrier.position.x + barrier.size.width / 2 {
                     self.nowScore += 1
                     self.scoreLabel.text = "\(self.nowScore)"
-                    self.runAction(self.voiceOfCoin)
-                    barrier.userData?["passed"] = NSNumber(bool: true)
+                    self.run(self.voiceOfCoin)
+                    barrier.userData?["passed"] = NSNumber(value: true as Bool)
                     //userData字典装不进bool值，所以只能将bool封装进NSNumber使用
                 }
             }
@@ -548,8 +576,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func cutTeach() {
         nowGameStatus = .teachGame
-        nodeOfWorld.enumerateChildNodesWithName("gameMenu") { nodeMarry, _ in nodeMarry.runAction(SKAction.sequence([
-            SKAction.fadeOutWithDuration(0.05),
+        nodeOfWorld.enumerateChildNodes(withName: "gameMenu") { nodeMarry, _ in nodeMarry.run(SKAction.sequence([
+            SKAction.fadeOut(withDuration: 0.05),
             SKAction.removeFromParent()
             ]))
         }
@@ -560,8 +588,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func cutGame() {
         nowGameStatus = .gameing
         
-        nodeOfWorld.enumerateChildNodesWithName("teachGame") { nodeMarry, _ in nodeMarry.runAction(SKAction.sequence([
-            SKAction.fadeOutWithDuration(0.05),
+        nodeOfWorld.enumerateChildNodes(withName: "teachGame") { nodeMarry, _ in nodeMarry.run(SKAction.sequence([
+            SKAction.fadeOut(withDuration: 0.05),
             SKAction.removeFromParent()
             ]))
         }
@@ -572,9 +600,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func cutGodown() {
         nowGameStatus = .goDown
-        runAction(SKAction.sequence([
+        run(SKAction.sequence([
             voiceOfWhack,
-            SKAction.waitForDuration(0.1),
+            SKAction.wait(forDuration: 0.1),
             voiceOfFall
             ]))
         
@@ -591,9 +619,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func cutNewGame() {
         
-        runAction(voiceOfPop)
+        run(voiceOfPop)
         let newScene = GameScene(size: size)
-        let transition = SKTransition.fadeWithColor(SKColor.whiteColor(), duration: 0.5)
+        let transition = SKTransition.fade(with: SKColor.white, duration: 0.5)
         view?.presentScene(newScene, transition: transition)
         
     }
@@ -604,16 +632,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //MARK: 分数
     func maxScore() -> Int {
-        return NSUserDefaults.standardUserDefaults().integerForKey("maxScore")
+        return UserDefaults.standard.integer(forKey: "maxScore")
     }
     
-    func setMaxScore(maxScore: Int) {
-        NSUserDefaults.standardUserDefaults().setInteger(maxScore, forKey: "maxScore")
-        NSUserDefaults.standardUserDefaults().synchronize()
+    func setMaxScore(_ maxScore: Int) {
+        UserDefaults.standard.set(maxScore, forKey: "maxScore")
+        UserDefaults.standard.synchronize()
     }
     //MARK: 碰撞引擎
     
-    func didBeginContact(contact: SKPhysicsContact) {
+    func didBegin(_ contact: SKPhysicsContact) {
         let beContact = contact.bodyA.categoryBitMask == physicsTier.roleOfGame ? contact.bodyB : contact.bodyA
         
         if beContact.categoryBitMask == physicsTier.front {
@@ -626,13 +654,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //MARK: 其他
     func toLearn() {
-        let URLOfBaidu = NSURL(string: urlOfBaidu)
-        UIApplication.sharedApplication().openURL(URLOfBaidu!)
+        let URLOfBaidu = URL(string: urlOfBaidu)
+        UIApplication.shared.openURL(URLOfBaidu!)
     }
     
     func toRate() {
-        let URLOfBaidu = NSURL(string: urlOfBaidu)
-        UIApplication.sharedApplication().openURL(URLOfBaidu!)
+        let URLOfBaidu = URL(string: urlOfBaidu)
+        UIApplication.shared.openURL(URLOfBaidu!)
     }
     
 }

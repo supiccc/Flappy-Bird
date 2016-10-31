@@ -23,7 +23,7 @@ class GameViewController: UIViewController {
                 ViewOfGame.showsPhysics = true
                 ViewOfGame.ignoresSiblingOrder = true
                 
-                SceneOfGame.scaleMode = .AspectFill
+                SceneOfGame.scaleMode = .aspectFill
                 
                 ViewOfGame.presentScene(SceneOfGame)
             }
@@ -32,7 +32,7 @@ class GameViewController: UIViewController {
         
     }
     
-    override func prefersStatusBarHidden() -> Bool {
+    override var prefersStatusBarHidden : Bool {
         return true
     }
 }
